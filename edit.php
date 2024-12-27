@@ -16,6 +16,8 @@ if (isset($_GET['id'])) {
     exit();
 }
 
+$titleErr = $bodyErr = $categoryErr = $authorErr = $imageErr = "";
+
 // Syntax untuk mengupdate data pada table articles
 if (isset($_POST['update'])) {
     $title = $_POST['title'];
@@ -24,12 +26,37 @@ if (isset($_POST['update'])) {
     $author_id = $_POST['author'];
     $image_url = $_POST['image_url'] ? $_POST['image_url'] : $article['image_url'];
 
-    $result = mysqli_query($con, "update articles set title = '$title', body = '$body', category_id = '$category_id', author_id = '$author_id', image_url = '$image_url' where id = $id");
-    if ($result) {
-        header("Location: detail.php?id=$id");
-        exit();
+    if (empty($title)) {
+        $titleErr = "Title tidak boleh kosong";
+    }
+    if (empty($body)) {
+        $bodyErr = "Isi artikel tidak boleh kosong";
+    }
+    if (empty($category_id)) {
+        $categoryErr = "Kategori tidak boleh kosong";
+    }
+    if (empty($author_id)) {
+        $authorErr = "Author tidak boleh kosong";
+    }
+    if (empty($image_url)) {
+        $imageErr = "Image URL tidak boleh kosong";
+    }
+    if (!empty($titleErr) || !empty($bodyErr) || !empty($categoryErr) || !empty($authorErr) || !empty($imageErr)) {
+        echo "<ul>";
+        foreach ([$titleErr, $bodyErr, $categoryErr, $authorErr, $imageErr] as $error) {
+            if (!empty($error)) {
+                echo "<li>$error</li>";
+            }
+        }
+        echo "</ul>";
     } else {
-        echo "Gagal mengupdate data";
+        $result = mysqli_query($con, "update articles set title = '$title', body = '$body', category_id = '$category_id', author_id = '$author_id', image_url = '$image_url' where id = $id");
+        if ($result) {
+            header("Location: detail.php?id=$id");
+            exit();
+        } else {
+            echo "Gagal mengupdate data";
+        }
     }
 }
 ?>
@@ -68,6 +95,9 @@ if (isset($_POST['update'])) {
         .article a:hover {
             text-decoration: underline;
         }
+        .error{
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -75,8 +105,10 @@ if (isset($_POST['update'])) {
     <form method="post" action="">
         <div class="article">
             <h2><input type="text" name="title" value="<?php echo htmlspecialchars($article['title']); ?>"></h2>
+            <span class="error"><?php echo $titleErr; ?></span>
             <img src="<?php echo htmlspecialchars($article['image_url']); ?>" alt="<?php echo htmlspecialchars($article['title']); ?>">
             <p><textarea name="body" cols="30" rows="10"><?php echo htmlspecialchars($article['body']); ?></textarea></p>
+            <span class="error"><?php echo $bodyErr; ?></span>
             <p>
                 Kategori: 
                 <select name="category">
@@ -87,9 +119,12 @@ if (isset($_POST['update'])) {
                     <option value="Olahraga" <?php echo $article['category'] == 'Olahraga' ? 'selected' : ''; ?>>Olahraga</option>
                     <option value="Hiburan" <?php echo $article['category'] == 'Hiburan' ? 'selected' : ''; ?>>Hiburan</option>
                 </select>
+                <span class="error"><?php echo $categoryErr; ?></span>
             </p>
             <p>Author ID: <input type="number" name="author" value="<?php echo htmlspecialchars($article['author']); ?>"></p>
+            <span class="error"><?php echo $authorErr; ?></span>
             <p>Image URL: <input type="text" name="image_url" value="<?php echo htmlspecialchars($article['image_url']); ?>"></p>
+            <span class="error"><?php echo $imageErr; ?></span>
             <p><input type="submit" name="update" value="Update"></p>
         </div>
     </form>

@@ -2,19 +2,46 @@
 // Memanggil file koneksi.php
 include_once("config.php");
 
+$titleErr = $bodyErr = $categoryErr = $authorErr = $imageErr = "";
 // Syntax untuk menambahkan data baru ke table articles
 if (isset($_POST['create'])) {
-    $title = $_POST['title'];
-    $body = $_POST['body'];
+    $title = trim($_POST['title']);
+    $body = trim($_POST['body']);
     $category_id = $_POST['category'];
-    $author_id = $_POST['author'];
-    $image_url = $_POST['image_url'];
-    $result = mysqli_query($con, "insert into articles (title, body, category_id, author_id, image_url) values ('$title', '$body', '$category_id', '$author_id', '$image_url')");
-    if ($result) {
-        header("Location: index.php");
-        exit();
+    $author_id = isset($_POST['author']) ? $_POST['author'] : '';
+    $image_url = trim($_POST['image_url']);
+
+    if (empty($title)) {
+        $titleErr = "Title tidak boleh kosong";
+    }
+    if (empty($body)) {
+        $bodyErr = "Isi artikel tidak boleh kosong";
+    }
+    if ($category_id == 0) {
+        $categoryErr = "Kategori tidak boleh kosong";
+    }
+    if (empty($author_id)) {
+        $authorErr = "Author tidak boleh kosong";
+    }
+    if (empty($image_url)) {
+        $imageErr = "Image URL tidak boleh kosong";
+    }
+    if (!empty($titleErr) || !empty($bodyErr) || !empty($categoryErr) || !empty($authorErr) || !empty($imageErr)) {
+        echo "<ul>";
+        foreach ([$titleErr, $bodyErr, $categoryErr, $authorErr, $imageErr] as $error) {
+            if (!empty($error)) {
+                echo "<li>$error</li>";
+            }
+        }
+        echo "</ul>";
     } else {
-        echo "Gagal menambahkan data" . mysqli_error($con);
+        $result = mysqli_query($con, "INSERT INTO articles (title, body, category_id, author_id, image_url) VALUES ('$title', '$body', '$category_id', '$author_id', '$image_url')");
+        if ($result) {
+            header("Location: index.php");
+            exit();
+        } else {
+            echo "Gagal menambahkan data: " . mysqli_error($con);
+        }
     }
 }
 ?>
@@ -53,6 +80,9 @@ if (isset($_POST['create'])) {
         .article a:hover {
             text-decoration: underline;
         }
+        .error {
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -60,7 +90,9 @@ if (isset($_POST['create'])) {
     <form method="post" action="create.php">
         <div class="article">
             <h2><input type="text" name="title" placeholder="Judul Artikel"></h2>
+            <span class="error">* <?php echo $titleErr; ?></span>
             <p><textarea name="body" cols="30" rows="10" placeholder="Isi Artikel"></textarea></p>
+            <span class="error">* <?php echo $bodyErr; ?></span>
             <p>
                 Kategori: 
                 <select name="category">
@@ -72,8 +104,11 @@ if (isset($_POST['create'])) {
                     <option value="6">Hiburan</option>
                 </select>
             </p>
+            <span class="error">* <?php echo $categoryErr; ?></span>
             <p>Author ID: <input type="number" name="author_id" placeholder="ID Penulis"></p>
+            <span class="error">* <?php echo $authorErr; ?></span>
             <p>Image URL: <input type="text" name="image_url" placeholder="URL Gambar"></p>
+            <span class="error">* <?php echo $imageErr; ?></span>
             <p><input type="submit" name="create" value="Buat"></p>
         </div>
     </form>
