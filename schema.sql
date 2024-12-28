@@ -1,4 +1,4 @@
--- Active: 1735293286719@@127.0.0.1@3306
+-- Active: 1735301674851@@127.0.0.1@3306@portal_berita
 -- Buat database
 CREATE DATABASE IF NOT EXISTS `PORTAL_BERITA`;
 USE `PORTAL_BERITA`;
@@ -74,3 +74,11 @@ SET @id = 0;
 UPDATE articles SET id = (@id := @id + 1) WHERE id > 0;
 
 UPDATE articles SET author_id = 1 WHERE author_id = 0;
+
+UPDATE users SET role = 'user' WHERE id = 2;
+
+UPDATE users SET password = '21232f297a57a5a743894a0e4a801fc3' WHERE name = 'admin';
+UPDATE users SET password = 'b312ba4ffd5245fa2a1ab819ec0d0347' WHERE name = 'author1';
+UPDATE users SET password = '6e6fba5122623ea1ec36af3336cdb70c' WHERE name = 'reader1';
+
+DELETE FROM users WHERE id = 8;

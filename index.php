@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if (!isset($_SESSION["login"])) {
+    header("Location: login.php");
+    exit;
+}
+
 // Memanggil file koneksi.php
 include_once("config.php");
 
@@ -57,6 +64,8 @@ while ($article = mysqli_fetch_assoc($result)) {
 
 <body>
     <h1>Articles</h1>
+    <p>anda login sebagai <?= $_SESSION['role'] ?><a href="logout.php" class="btn-create">Logout</a></p>
+    
     <input type="text" id="searchInput" placeholder="Search..."></input>
     <button type="button" onclick="performSearch()">Cari</button>
     <div id="search-results"></div>
