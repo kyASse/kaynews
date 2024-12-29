@@ -48,21 +48,13 @@ if (isset($_POST['update'])) {
     if (empty($image_url)) {
         $imageErr = "Image URL tidak boleh kosong";
     }
-    if (!empty($titleErr) || !empty($bodyErr) || !empty($categoryErr) || !empty($authorErr) || !empty($imageErr)) {
-        echo "<ul>";
-        foreach ([$titleErr, $bodyErr, $categoryErr, $authorErr, $imageErr] as $error) {
-            if (!empty($error)) {
-                echo "<li>$error</li>";
-            }
-        }
-        echo "</ul>";
-    } else {
-        $result = mysqli_query($con, "update articles set title = '$title', body = '$body', category_id = '$category_id', author_id = '$author_id', image_url = '$image_url' where id = $id");
+    if (empty($titleErr) && empty($bodyErr) && empty($categoryErr) && empty($authorErr) && empty($imageErr)) {
+        $result = mysqli_query($con, "INSERT INTO articles (title, body, category_id, author_id, image_url) VALUES ('$title', '$body', '$category_id', '$author_id', '$image_url')");
         if ($result) {
-            header("Location: detail.php?id=$id");
+            header("Location: index.php");
             exit();
         } else {
-            echo "Gagal mengupdate data";
+            echo "Gagal menambahkan data: " . mysqli_error($con);
         }
     }
 }
