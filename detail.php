@@ -2,6 +2,13 @@
 // Memanggil file koneksi.php
 include_once("config.php");
 
+// Syntax untuk mengambil semua data dari table categories
+$result = mysqli_query($con, "select * from categories");
+$categories = [];
+while ($category = mysqli_fetch_assoc($result)) {
+    $categories[$category['id']] = $category['name'];
+}
+
 // Syntax untuk mengambil semua data dari table articles berdasarkan id
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
@@ -72,10 +79,12 @@ if (isset($_GET['id'])) {
         <img src="<?php echo htmlspecialchars($article['image_url']); ?>" alt="<?php echo htmlspecialchars($article['title']); ?>">
         <p><?php echo htmlspecialchars($article['body']); ?></p>
         <p>oleh <a href="#"><?php echo htmlspecialchars($article['author']); ?></a></p>
-        <p>kategori: <a href="#"><?php echo htmlspecialchars($article['category']); ?></a></p>
+        <p>kategori: <a href="index.php?category="<?php $categories[$category['id']]?>><?= $name?></a></p>
+        <option value="<?= $id ?>" <?= isset($_GET['category']) && $_GET['category'] == $id ? 'selected' : '' ?>><?= $name ?></option>
         <p>tanggal: <?php echo htmlspecialchars(date('d-m-Y', strtotime($article['published_at']))); ?></p>
     </div>
     <a href="edit.php?id=<?php echo $article['id']; ?>" class="button" id="edit">Edit Artikel</a>
+    <a href="cetak_artikel.php?id=<?php echo $article['id']; ?>" class="button" id="unduh">unduh Artikel</a>
     <a href="delete.php?id=<?php echo $article['id']; ?>" class="button" id="hapus">Hapus Artikel</a>
 <script>
     document.getElementById('hapus').addEventListener('click', function(event) {

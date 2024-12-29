@@ -9,6 +9,13 @@ if (!isset($_SESSION["login"])) {
 // Memanggil file koneksi.php
 include_once("config.php");
 
+// Syntax untuk mengambil semua data dari table categories
+$result = mysqli_query($con, "select * from categories");
+$categories = [];
+while ($category = mysqli_fetch_assoc($result)) {
+    $categories[$category['id']] = $category['name'];
+}
+
 // Syntax untuk mengambil semua data dari table articles
 $result = mysqli_query($con, "select * from articles");
 $articles = [];
@@ -16,7 +23,6 @@ while ($article = mysqli_fetch_assoc($result)) {
     $articles[] = $article;
 }
 ?>
-
 <html>
 
 <head>
@@ -66,6 +72,32 @@ while ($article = mysqli_fetch_assoc($result)) {
     <h1>Articles</h1>
     <p>anda login sebagai <?= $_SESSION['role'] ?><a href="logout.php" class="btn-create">Logout</a></p>
     
+    <form action="" method="get">
+        <label for="category">Kategori:</label>
+        <select name="category" id="category">
+            <option value="">Semua</option>
+            <?php foreach ($categories as $id => $name) : ?>
+                <option value="<?= $id ?>" <?= isset($_GET['category']) && $_GET['category'] == $id ? 'selected' : '' ?>><?= $name ?></option>
+            <?php endforeach; ?>
+        </select>
+        <input type="submit" value="Filter">
+    </form>
+    
+    <?php if (isset($_GET['category']) && $_GET['category'] != '') : ?>
+        <?php $category_id = $_GET['category']; ?>
+        <?php $result = mysqli_query($con, "select * from articles where category_id = $category_id"); ?>
+        <?php $articles = []; ?>
+        <?php while ($article = mysqli_fetch_assoc($result)) : ?>
+            <?php $articles[] = $article; ?>
+        <?php endwhile; ?>
+    <?php else : ?>
+        <?php $result = mysqli_query($con, "select * from articles"); ?>
+        <?php $articles = []; ?>
+        <?php while ($article = mysqli_fetch_assoc($result)) : ?>
+            <?php $articles[] = $article; ?>
+        <?php endwhile; ?>
+    <?php endif; ?>
+    
     <input type="text" id="searchInput" placeholder="Search..."></input>
     <button type="button" onclick="performSearch()">Cari</button>
     <div id="search-results"></div>
@@ -86,3 +118,4 @@ while ($article = mysqli_fetch_assoc($result)) {
 </body>
 
 </html>
+
