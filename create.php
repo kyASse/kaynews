@@ -1,4 +1,10 @@
 <?php
+session_start();
+
+if (!isset($_SESSION["login"])) {
+    header("Location: login.php");
+    exit;
+}
 // Memanggil file koneksi.php
 include_once("config.php");
 
@@ -26,15 +32,7 @@ if (isset($_POST['create'])) {
     if (empty($image_url)) {
         $imageErr = "Image URL tidak boleh kosong";
     }
-    if (!empty($titleErr) || !empty($bodyErr) || !empty($categoryErr) || !empty($authorErr) || !empty($imageErr)) {
-        echo "<ul>";
-        foreach ([$titleErr, $bodyErr, $categoryErr, $authorErr, $imageErr] as $error) {
-            if (!empty($error)) {
-                echo "<li>$error</li>";
-            }
-        }
-        echo "</ul>";
-    } else {
+    if (empty($titleErr) && empty($bodyErr) && empty($categoryErr) && empty($authorErr) && empty($imageErr)) {
         $result = mysqli_query($con, "INSERT INTO articles (title, body, category_id, author_id, image_url) VALUES ('$title', '$body', '$category_id', '$author_id', '$image_url')");
         if ($result) {
             header("Location: index.php");
@@ -50,28 +48,32 @@ if (isset($_POST['create'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Buat Artikel Baru</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
         }
         .article {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 10px;
+            background-color: #f8fafc;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
         }
         .article h2 {
             margin: 0;
             font-size: 1.5em;
         }
         .article p {
-            margin-bottom: 20px;
+            margin-bottom: 1rem;
         }
         .article img {
             width: 100%;
             height: 200px;
             object-fit: cover;
-            margin-bottom: 20px;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
         }
         .article a {
             text-decoration: none;
@@ -86,32 +88,39 @@ if (isset($_POST['create'])) {
     </style>
 </head>
 <body>
-    <h1>Buat Artikel Baru</h1>
-    <form method="post" action="create.php">
-        <div class="article">
-            <h2><input type="text" name="title" placeholder="Judul Artikel"></h2>
-            <span class="error">* <?php echo $titleErr; ?></span>
-            <p><textarea name="body" cols="30" rows="10" placeholder="Isi Artikel"></textarea></p>
-            <span class="error">* <?php echo $bodyErr; ?></span>
-            <p>
-                Kategori: 
-                <select name="category">
-                    <option value="1">Nasional</option>
-                    <option value="2">Internasional</option>
-                    <option value="3">Ekonomi</option>
-                    <option value="4">Teknologi</option>
-                    <option value="5">Olahraga</option>
-                    <option value="6">Hiburan</option>
-                </select>
-            </p>
-            <span class="error">* <?php echo $categoryErr; ?></span>
-            <p>Author ID: <input type="number" name="author_id" placeholder="ID Penulis"></p>
-            <span class="error">* <?php echo $authorErr; ?></span>
-            <p>Image URL: <input type="text" name="image_url" placeholder="URL Gambar"></p>
-            <span class="error">* <?php echo $imageErr; ?></span>
-            <p><input type="submit" name="create" value="Buat"></p>
+    <header class="bg-light py-4">
+        <div class="container">
+            <?php include_once('header.php'); ?>
         </div>
-    </form>
+    </header>
+    <div class="container mt-3">
+        <h1 class="display">Buat Artikel Baru</h1>
+        <form method="post" action="create.php">
+            <div class="article">
+                <h2><input type="text" name="title" placeholder="Judul Artikel" class="form-control"></h2>
+                <span class="error">* <?php echo $titleErr; ?></span>
+                <p><textarea name="body" cols="30" rows="10" placeholder="Isi Artikel" class="form-control"></textarea></p>
+                <span class="error">* <?php echo $bodyErr; ?></span>
+                <p>
+                    Kategori: 
+                    <select name="category" class="form-control">
+                        <option value="1">Nasional</option>
+                        <option value="2">Internasional</option>
+                        <option value="3">Ekonomi</option>
+                        <option value="4">Teknologi</option>
+                        <option value="5">Olahraga</option>
+                        <option value="6">Hiburan</option>
+                    </select>
+                </p>
+                <span class="error">* <?php echo $categoryErr; ?></span>
+                <p>Author ID: <input type="number" name="author_id" placeholder="ID Penulis" class="form-control"></p>
+                <span class="error">* <?php echo $authorErr; ?></span>
+                <p>Image URL: <input type="text" name="image_url" placeholder="URL Gambar" class="form-control"></p>
+                <span class="error">* <?php echo $imageErr; ?></span>
+                <p><input type="submit" name="create" value="Buat" class="btn btn-primary"></p>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
 

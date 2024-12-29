@@ -83,6 +83,9 @@ while ($article = mysqli_fetch_assoc($result)) {
                 <div class="col-auto">
                     <input type="submit" value="Filter" class="btn btn-primary">
                 </div>
+                <div class="col-auto btn">
+                    <a href="create.php" class="btn btn-success">Buat Artikel</a>
+                </div>
             </div>
         </form>
         <?php if (isset($_GET['category']) && $_GET['category'] != '') : ?>
