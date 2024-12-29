@@ -27,29 +27,16 @@ while ($article = mysqli_fetch_assoc($result)) {
 
 <head>
     <title>KayNews</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-
         .article {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 1.5rem;
         }
 
-        .article h2 {
-            margin: 0;
-            font-size: 1.5em;
-        }
-
-        .article a {
-            text-decoration: none;
-            color: #007BFF;
-        }
-
-        .article a:hover {
-            text-decoration: underline;
+        .article img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
         }
 
         .btn-create {
@@ -69,53 +56,85 @@ while ($article = mysqli_fetch_assoc($result)) {
 </head>
 
 <body>
-    <h1>Articles</h1>
-    <p>anda login sebagai <?= $_SESSION['role'] ?><a href="logout.php" class="btn-create">Logout</a></p>
-    
-    <form action="" method="get">
-        <label for="category">Kategori:</label>
-        <select name="category" id="category">
-            <option value="">Semua</option>
-            <?php foreach ($categories as $id => $name) : ?>
-                <option value="<?= $id ?>" <?= isset($_GET['category']) && $_GET['category'] == $id ? 'selected' : '' ?>><?= $name ?></option>
-            <?php endforeach; ?>
-        </select>
-        <input type="submit" value="Filter">
-    </form>
-    
-    <?php if (isset($_GET['category']) && $_GET['category'] != '') : ?>
-        <?php $category_id = $_GET['category']; ?>
-        <?php $result = mysqli_query($con, "select * from articles where category_id = $category_id"); ?>
-        <?php $articles = []; ?>
-        <?php while ($article = mysqli_fetch_assoc($result)) : ?>
-            <?php $articles[] = $article; ?>
-        <?php endwhile; ?>
-    <?php else : ?>
-        <?php $result = mysqli_query($con, "select * from articles"); ?>
-        <?php $articles = []; ?>
-        <?php while ($article = mysqli_fetch_assoc($result)) : ?>
-            <?php $articles[] = $article; ?>
-        <?php endwhile; ?>
-    <?php endif; ?>
-    
-    <input type="text" id="searchInput" placeholder="Search..."></input>
-    <button type="button" onclick="performSearch()">Cari</button>
-    <div id="search-results"></div>
-    <p>
-        <a href="create.php" class="btn-create">Buat Artikel Baru</a>
-        <a href="delete.php" class="btn-create">Hapus Artikel</a>
-    </p>
-    <?php foreach ($articles as $article) : ?>
-        <div class="article">
-            <h2><?= htmlspecialchars($article['title']); ?></h2>
-            <p><?= htmlspecialchars(substr(strip_tags($article['body']), 0, 100)) . '...'; ?></p>
-            <a href="detail.php?id=<?= $article['id']; ?>">Read More</a>
+<header class="bg-light py-4">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="mb-0 text-secondary">KayNews</h1>
+            <div>
+                <p class="mb-0"><strong><?= $_SESSION['role'] ?></strong></p>
+                <a href="logout.php" class="btn btn-danger btn-sm">Logout</a>
+            </div>
         </div>
-    <?php endforeach; ?>
-    <?php if (empty($articles)) : ?>
-        <p>Tidak ada artikel</p>
-    <?php endif; ?>
+        <form action="" method="get" class="mb-3">
+            <div class="form-row align-items-center">
+                <div class="col-auto">
+                    <label for="category" class="mr-2">Kategori:</label>
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-outline-primary <?= isset($_GET['category']) ? '' : 'active' ?>">
+                            <input type="radio" name="category" id="category-all" value="" <?= isset($_GET['category']) ? '' : 'checked' ?>> Semua
+                        </label>
+                        <?php foreach ($categories as $id => $name) : ?>
+                            <label class="btn btn-outline-primary <?= isset($_GET['category']) && $_GET['category'] == $id ? 'active' : '' ?>">
+                                <input type="radio" name="category" id="category-<?= $id ?>" value="<?= $id ?>" <?= isset($_GET['category']) && $_GET['category'] == $id ? 'checked' : '' ?>> <?= $name ?>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <input type="submit" value="Filter" class="btn btn-primary">
+                </div>
+            </div>
+        </form>
+        <?php if (isset($_GET['category']) && $_GET['category'] != '') : ?>
+            <?php $category_id = $_GET['category']; ?>
+            <?php $result = mysqli_query($con, "select * from articles where category_id = $category_id"); ?>
+            <?php $articles = []; ?>
+            <?php while ($article = mysqli_fetch_assoc($result)) : ?>
+                <?php $articles[] = $article; ?>
+            <?php endwhile; ?>
+        <?php else : ?>
+            <?php $result = mysqli_query($con, "select * from articles"); ?>
+            <?php $articles = []; ?>
+            <?php while ($article = mysqli_fetch_assoc($result)) : ?>
+                <?php $articles[] = $article; ?>
+            <?php endwhile; ?>
+        <?php endif; ?>
+        <div class="input-group mb-3">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search...">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onclick="performSearch()">Cari</button>
+            </div>
+        </div>
+    </div>
+</header>
+    <div class="container mt-3">
+        <div id="search-card">
+            <div>
+                <h5 class="card-title">Hasil Pencarian</h5>
+            </div>
+            <div id="search-results" class="card mb-3">
+                <div class="card-body">
+                    <div id="search-results-list" class="list-group"></div>
+                </div>
+            </div>
+        </div>
+        <?php foreach ($articles as $article) : ?>
+            <div class="article card mb-3">
+                <img src="<?= htmlspecialchars($article['image_url']); ?>" class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title"><?= htmlspecialchars($article['title']); ?></h5>
+                    <p class="card-text"><?= htmlspecialchars(substr(strip_tags($article['body']), 0, 100)) . '...'; ?></p>
+                    <p class="card-text"><small class="text-muted">oleh <?= htmlspecialchars($article['author']); ?> pada <?= htmlspecialchars(date('d-m-Y', strtotime($article['published_at']))); ?></small></p>
+                    <a href="detail.php?id=<?= $article['id']; ?>" class="btn btn-primary">Read More</a>
+                </div>
+            </div>
+        <?php endforeach; ?>
+        <?php if (empty($articles)) : ?>
+            <p>Tidak ada artikel</p>
+        <?php endif; ?>
+    </div>
 </body>
 
 </html>
+
 

@@ -1,5 +1,10 @@
 <?php
+session_start();
 
+if (!isset($_SESSION["login"])) {
+    header("Location: login.php");
+    exit;
+}
 // Get article data from database
 $article = getArticle($_GET['id'] ?? null);
 
@@ -21,7 +26,7 @@ $categories = getCategories();
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color:rgb(255, 255, 255);
         }
         .article {
             margin-top: 20px;
@@ -34,9 +39,13 @@ $categories = getCategories();
     </style>
 </head>
 <body>
+    <header class="bg-light py-4">
+        <div class="container">
+            <?php include_once('header.php'); ?>
+        </div>
+    </header>
     <div class="container">
-        <h1 class="mt-4">Detail Artikel</h1>
-        <a href="index.php" class="btn btn-primary mb-3">Kembali</a>
+        <a href="index.php" class="btn btn-primary mt-3">Kembali</a>
         <div class="card article">
             <div class="card-body">
                 <h2 class="card-title"><?= htmlspecialchars($article['title']); ?></h2>
