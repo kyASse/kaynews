@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if (!isset($_SESSION["login"])) {
+    header("Location: login.php");
+    exit;
+}
+
 // Memanggil file koneksi.php
 include_once("config.php");
 
@@ -66,27 +73,32 @@ if (isset($_POST['update'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Artikel</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #f8fafc;
         }
         .article {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 10px;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: white;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
         }
         .article h2 {
             margin: 0;
             font-size: 1.5em;
         }
         .article p {
-            margin-bottom: 20px;
+            margin-bottom: 1rem;
         }
         .article img {
             width: 100%;
             height: 200px;
             object-fit: cover;
-            margin-bottom: 20px;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
         }
         .article a {
             text-decoration: none;
@@ -101,33 +113,40 @@ if (isset($_POST['update'])) {
     </style>
 </head>
 <body>
-    <h1>Edit Artikel</h1>
-    <form method="post" action="">
-        <div class="article">
-            <h2><input type="text" name="title" value="<?php echo htmlspecialchars($article['title']); ?>"></h2>
-            <span class="error"><?php echo $titleErr; ?></span>
-            <img src="<?php echo htmlspecialchars($article['image_url']); ?>" alt="<?php echo htmlspecialchars($article['title']); ?>">
-            <p><textarea name="body" cols="30" rows="10"><?php echo htmlspecialchars($article['body']); ?></textarea></p>
-            <span class="error"><?php echo $bodyErr; ?></span>
-            <p>
-                Kategori: 
-                <select name="category">
-                    <option value="Nasional" <?php echo $article['category'] == 'Nasional' ? 'selected' : ''; ?>>Nasional</option>
-                    <option value="Internasional" <?php echo $article['category'] == 'Internasional' ? 'selected' : ''; ?>>Internasional</option>
-                    <option value="Ekonomi" <?php echo $article['category'] == 'Ekonomi' ? 'selected' : ''; ?>>Ekonomi</option>
-                    <option value="Teknologi" <?php echo $article['category'] == 'Teknologi' ? 'selected' : ''; ?>>Teknologi</option>
-                    <option value="Olahraga" <?php echo $article['category'] == 'Olahraga' ? 'selected' : ''; ?>>Olahraga</option>
-                    <option value="Hiburan" <?php echo $article['category'] == 'Hiburan' ? 'selected' : ''; ?>>Hiburan</option>
-                </select>
-                <span class="error"><?php echo $categoryErr; ?></span>
-            </p>
-            <p>Author ID: <input type="number" name="author" value="<?php echo htmlspecialchars($article['author']); ?>"></p>
-            <span class="error"><?php echo $authorErr; ?></span>
-            <p>Image URL: <input type="text" name="image_url" value="<?php echo htmlspecialchars($article['image_url']); ?>"></p>
-            <span class="error"><?php echo $imageErr; ?></span>
-            <p><input type="submit" name="update" value="Update"></p>
+    <header class="bg-light py-4">
+        <div class="container">
+            <?php include_once('header.php'); ?>
         </div>
-    </form>
+    </header>
+    <div class="container mt-3">
+        <h1 class="text-center">Edit Artikel</h1>
+        <form method="post" action="">
+            <div class="article">
+                <h2><input type="text" name="title" value="<?php echo htmlspecialchars($article['title']); ?>" class="form-control"></h2>
+                <span class="error"><?php echo $titleErr; ?></span>
+                <img src="<?php echo htmlspecialchars($article['image_url']); ?>" alt="<?php echo htmlspecialchars($article['title']); ?>" class="rounded">
+                <p><textarea name="body" cols="30" rows="10" class="form-control"><?php echo htmlspecialchars($article['body']); ?></textarea></p>
+                <span class="error"><?php echo $bodyErr; ?></span>
+                <p>
+                    Kategori: 
+                    <select name="category" class="form-control">
+                        <option value="Nasional" <?php echo $article['category'] == 'Nasional' ? 'selected' : ''; ?>>Nasional</option>
+                        <option value="Internasional" <?php echo $article['category'] == 'Internasional' ? 'selected' : ''; ?>>Internasional</option>
+                        <option value="Ekonomi" <?php echo $article['category'] == 'Ekonomi' ? 'selected' : ''; ?>>Ekonomi</option>
+                        <option value="Teknologi" <?php echo $article['category'] == 'Teknologi' ? 'selected' : ''; ?>>Teknologi</option>
+                        <option value="Olahraga" <?php echo $article['category'] == 'Olahraga' ? 'selected' : ''; ?>>Olahraga</option>
+                        <option value="Hiburan" <?php echo $article['category'] == 'Hiburan' ? 'selected' : ''; ?>>Hiburan</option>
+                    </select>
+                    <span class="error"><?php echo $categoryErr; ?></span>
+                </p>
+                <p>Author ID: <input type="number" name="author" value="<?php echo htmlspecialchars($article['author']); ?>" class="form-control"></p>
+                <span class="error"><?php echo $authorErr; ?></span>
+                <p>Image URL: <input type="text" name="image_url" value="<?php echo htmlspecialchars($article['image_url']); ?>" class="form-control"></p>
+                <span class="error"><?php echo $imageErr; ?></span>
+                <p><input type="submit" name="update" value="Update" class="btn btn-primary"></p>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
 
