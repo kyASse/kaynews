@@ -1,27 +1,16 @@
 <?php
-// Memanggil file koneksi.php
-include_once("config.php");
 
-// Syntax untuk mengambil semua data dari table categories
-$result = mysqli_query($con, "select * from categories");
-$categories = [];
-while ($category = mysqli_fetch_assoc($result)) {
-    $categories[$category['id']] = $category['name'];
-}
+// Get article data from database
+$article = getArticle($_GET['id'] ?? null);
 
-// Syntax untuk mengambil semua data dari table articles berdasarkan id
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $result = mysqli_query($con, "select * from articles where id = $id");
-    $article = mysqli_fetch_assoc($result);
-    if (!$article) {
-        header("Location: index.php");
-        exit();
-    }
-} else {
+if (!$article) {
     header("Location: index.php");
-    exit();
+    exit;
 }
+
+// Get categories from database
+$categories = getCategories();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,71 +18,100 @@ if (isset($_GET['id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail Artikel</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
         }
         .article {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        .article h2 {
-            margin: 0;
-            font-size: 1.5em;
-        }
-        .article p {
-            margin-bottom: 20px;
+            margin-top: 20px;
         }
         .article img {
             width: 100%;
-            height: 200px;
+            height: auto;
             object-fit: cover;
-            margin-bottom: 20px;
-        }
-        .article a {
-            text-decoration: none;
-            color: #007BFF;
-        }
-        .article a:hover {
-            text-decoration: underline;
-        }
-        .button {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .button:hover {
-            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <h1>Detail Artikel</h1>
-    <a href="index.php" class="button">Kembali</a>
-    <div class="article">
-        <h2><?php echo htmlspecialchars($article['title']); ?></h2>
-        <img src="<?php echo htmlspecialchars($article['image_url']); ?>" alt="<?php echo htmlspecialchars($article['title']); ?>">
-        <p><?php echo htmlspecialchars($article['body']); ?></p>
-        <p>oleh <a href="#"><?php echo htmlspecialchars($article['author']); ?></a></p>
-        <p>kategori: <a href="index.php?category="<?php $categories[$category['id']]?>><?= $name?></a></p>
-        <option value="<?= $id ?>" <?= isset($_GET['category']) && $_GET['category'] == $id ? 'selected' : '' ?>><?= $name ?></option>
-        <p>tanggal: <?php echo htmlspecialchars(date('d-m-Y', strtotime($article['published_at']))); ?></p>
+    <div class="container">
+        <h1 class="mt-4">Detail Artikel</h1>
+        <a href="index.php" class="btn btn-primary mb-3">Kembali</a>
+        <div class="card article">
+            <div class="card-body">
+                <h2 class="card-title"><?= htmlspecialchars($article['title']); ?></h2>
+                <img src="<?= htmlspecialchars($article['image_url']); ?>" alt="<?= htmlspecialchars($article['title']); ?>" class="card-img-top">
+                <p class="card-text"><?= htmlspecialchars($article['body']); ?></p>
+                <p class="card-text"><small class="text-muted">oleh: <?= htmlspecialchars($article['author_id']); ?></small></p>
+                <p class="card-text">kategori: <a href="index.php?category=<?= $categories[$article['category_id']] ?>" class="text-primary"><?= $categories[$article['category_id']] ?></a></p>
+                <p class="card-text"><small class="text-muted">tanggal: <?= htmlspecialchars(date('d-m-Y', strtotime($article['published_at']))); ?></small></p>
+            </div>
+        </div>
+        <div class="mt-3 mb-3">
+            <a href="edit.php?id=<?= $article['id']; ?>" class="btn btn-warning">Edit Artikel</a>
+            <a href="cetak_artikel.php?id=<?= $article['id']; ?>" class="btn btn-success">Unduh Artikel</a>
+            <a href="delete.php?id=<?= $article['id']; ?>" class="btn btn-danger" id="hapus">Hapus Artikel</a>
+        </div>
     </div>
-    <a href="edit.php?id=<?php echo $article['id']; ?>" class="button" id="edit">Edit Artikel</a>
-    <a href="cetak_artikel.php?id=<?php echo $article['id']; ?>" class="button" id="unduh">unduh Artikel</a>
-    <a href="delete.php?id=<?php echo $article['id']; ?>" class="button" id="hapus">Hapus Artikel</a>
-<script>
-    document.getElementById('hapus').addEventListener('click', function(event) {
-        if (!confirm('Apakah Anda yakin ingin menghapus artikel ini?')) {
-            event.preventDefault();
-        }
-    });
-</script>
 
+    <script>
+        document.getElementById('hapus').addEventListener('click', function(event) {
+            if (!confirm('Apakah Anda yakin ingin menghapus artikel ini?')) {
+                event.preventDefault();
+            }
+        });
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
 
+<?php
+
+/**
+ * Get article data from database
+ *
+ * @param int $id
+ * @return array|null
+ */
+function getArticle($id)
+{
+    $con = connectDB();
+    $result = mysqli_query($con, "SELECT * FROM articles WHERE id = $id");
+    $article = mysqli_fetch_assoc($result);
+    mysqli_close($con);
+    return $article;
+}
+
+/**
+ * Get categories from database
+ *
+ * @return array
+ */
+function getCategories()
+{
+    $con = connectDB();
+    $result = mysqli_query($con, "SELECT * FROM categories");
+    $categories = [];
+    while ($category = mysqli_fetch_assoc($result)) {
+        $categories[$category['id']] = $category['name'];
+    }
+    mysqli_close($con);
+    return $categories;
+}
+
+/**
+ * koneksi ke database
+ *
+ * @return resource
+ */
+function connectDB()
+{
+    $con = mysqli_connect("localhost", "root", "", "portal_berita");
+    if (!$con) {
+        die("Koneksi gagal: " . mysqli_connect_error());
+    }
+    return $con;
+}
