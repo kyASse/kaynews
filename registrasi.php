@@ -1,49 +1,43 @@
 <?php
+
 include_once("config.php");
 
-$namaErr = $emailErr = $passErr = $roleErr = "";
-
+$errorMessage = "";
 function test_input($data) {
     $data = trim($data);
     $data = stripslashes($data);
     $data = htmlspecialchars($data);
     return $data;
-    }
+}
 
 if (isset($_POST['register'])) {
-    $nama = test_input($_POST['username']);
-    $email = test_input($_POST['email']);
-    $pass = md5($_POST['password']);
-    $role = 'user';
+    $userName = test_input($_POST['username']);
+    $userEmail = test_input($_POST['email']);
+    $userPassword = md5($_POST['password']);
 
-    if (empty($nama)) {
-        $namaErr = "Username tidak boleh kosong";
-    }
-
-    if (empty($email)) {
-        $emailErr = "Email tidak boleh kosong";
-    } else {
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $emailErr = "Format email salah";
-        }
-    }
-
-    if (empty($pass)) {
-        $passErr = "Password tidak boleh kosong";
+    if (empty($userName)) {
+        $errorMessage = "Username tidak boleh kosong";
+    } else if (empty($userEmail)) {
+        $errorMessage = "Email tidak boleh kosong";
+    } else if (!filter_var($userEmail, FILTER_VALIDATE_EMAIL)) {
+        $errorMessage = "Format email salah";
+    } else if (empty($userPassword)) {
+        $errorMessage = "Password tidak boleh kosong";
     } else if (strlen($_POST['password']) < 6) {
-        $passErr = "Password harus memiliki minimal 6 karakter";
+        $errorMessage = "Password harus memiliki minimal 6 karakter";
     } else if (!preg_match('/[A-Z]/', $_POST['password'])) {
-        $passErr = "Password harus memiliki minimal satu huruf kapital";
+        $errorMessage = "Password harus memiliki minimal satu huruf kapital";
     } else if (!preg_match('/[0-9]/', $_POST['password'])) {
-        $passErr = "Password harus memiliki minimal satu angka";
+        $errorMessage = "Password harus memiliki minimal satu angka";
     } else {
-        $sql = "INSERT INTO users (name, password, email, role) VALUES ('$nama', '$pass', '$email', '$role')";
+        $sql = "INSERT INTO users (name, password, email, role) VALUES ('$userName', '$userPassword', '$userEmail', 'user')";
         $query = mysqli_query($con, $sql);
 
         if ($query) {
-            echo "<script>alert('Anda berhasil mendaftar');window.location.href='login.php';</script>"
+            header("Location: login.php");
+            exit();
         } else {
-            echo "Gagal mendaftar";
+            $errorMessage = "Gagal mendaftar";
         }
     }
 }
@@ -55,23 +49,65 @@ mysqli_close($con);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrasi</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color:rgb(255, 255, 255);
+        }
+        .register-container {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .register-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.1);
+        }
+        .register-form h2 {
+            margin-bottom: 1.5rem;
+        }
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-<h2>Registrasi Akun</h2>
-<form action="registrasi.php" method="post">
-    <div class="login"></div>
-        <label for="username">Username:</label><br>
-        <input type="text" name="username" id="username"><br>
-        <span class="error">* <?php echo $namaErr; ?></span>
-        <label for="password">Password:</label><br>
-        <input type="password" name="password" id="password"><br>
-        <span class="error">* <?php echo $passErr; ?></span>
-        <label for="email">Email:</label><br>
-        <input type="email" name="email" id="email"><br>
-        <span class="error">* <?php echo $emailErr; ?></span>
-        <input type="submit" name="register" value="REGISTRASI">
+    <div class="container">
+        <div class="register-container">
+            <div class="col-md-4">
+                <h2 class="text-center">Registrasi Akun</h2>
+                <form action="registrasi.php" method="post" class="register-form p-4">
+                    <div class="form-group mb-3">
+                        <label for="username">Username:</label>
+                        <input type="text" name="username" id="username" class="form-control">
+                        <span class="error">* <?php echo $errorMessage; ?></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="password">Password:</label>
+                        <input type="password" name="password" id="password" class="form-control">
+                        <span class="error">* <?php echo $errorMessage; ?></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="email">Email:</label>
+                        <input type="email" name="email" id="email" class="form-control">
+                        <span class="error">* <?php echo $errorMessage; ?></span>
+                    </div>
+                    <button type="submit" name="register" value="REGISTRASI" class="btn btn-primary btn-custom w-100 mt-3">REGISTRASI</button>
+                    <p class="mt-3 text-center">Sudah punya akun? Yuk <a href="login.php">Login</a></p>
+                </form>
+            </div>
+        </div>
     </div>
-</form>
 </body>
 </html>
 
