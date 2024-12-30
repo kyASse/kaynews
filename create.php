@@ -14,7 +14,7 @@ if (isset($_POST['create'])) {
     $title = trim($_POST['title']);
     $body = trim($_POST['body']);
     $category_id = $_POST['category'];
-    $author_id = isset($_POST['author']) ? $_POST['author'] : '';
+    $author_id = isset($_POST['author_id']) ? $_POST['author_id'] : '';
     $image_url = trim($_POST['image_url']);
 
     if (empty($title)) {

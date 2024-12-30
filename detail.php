@@ -50,9 +50,11 @@ $categories = getCategories();
             <div class="card-body">
                 <h2 class="card-title"><?= htmlspecialchars($article['title']); ?></h2>
                 <img src="<?= htmlspecialchars($article['image_url']); ?>" alt="<?= htmlspecialchars($article['title']); ?>" class="card-img-top">
-                <p class="card-text"><?= htmlspecialchars($article['body']); ?></p>
+                <?php foreach (explode("\n", $article['body']) as $paragraph) : ?>
+                    <p class="card-text"><?= htmlspecialchars(trim($paragraph)); ?></p>
+                <?php endforeach; ?>
                 <p class="card-text"><small class="text-muted">oleh: <?= htmlspecialchars($article['author_id']); ?></small></p>
-                <p class="card-text">kategori: <a href="index.php?category=<?= $categories[$article['category_id']] ?>" class="text-primary"><?= $categories[$article['category_id']] ?></a></p>
+                <p class="card-text">kategori: <a href="index.php?category=<?= $article['category_id']; ?>" class="text-primary"><?= $categories[$article['category_id']] ?></a></p>
                 <p class="card-text"><small class="text-muted">tanggal: <?= htmlspecialchars(date('d-m-Y', strtotime($article['published_at']))); ?></small></p>
             </div>
         </div>

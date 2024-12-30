@@ -59,7 +59,7 @@ while ($article = mysqli_fetch_assoc($result)) {
 <header class="bg-light py-4">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h1 class="mb-0 text-secondary">KayNews</h1>
+            <a class="text-decoration-none hover" href="index.php"><h1 class="mb-0 text-secondary">KayNews</h1></a>
             <div>
                 <p class="mb-0"><strong><?= $_SESSION['role'] ?></strong></p>
                 <a href="logout.php" class="btn btn-danger btn-sm">Logout</a>
@@ -127,7 +127,7 @@ while ($article = mysqli_fetch_assoc($result)) {
                 <div class="card-body">
                     <h5 class="card-title"><?= htmlspecialchars($article['title']); ?></h5>
                     <p class="card-text"><?= htmlspecialchars(substr(strip_tags($article['body']), 0, 100)) . '...'; ?></p>
-                    <p class="card-text"><small class="text-muted">oleh <?= htmlspecialchars($article['author']); ?> pada <?= htmlspecialchars(date('d-m-Y', strtotime($article['published_at']))); ?></small></p>
+                    <p class="card-text"><small class="text-muted">oleh <?= htmlspecialchars($article['author_id']); ?> pada <?= htmlspecialchars(date('d-m-Y', strtotime($article['published_at']))); ?></small></p>
                     <a href="detail.php?id=<?= $article['id']; ?>" class="btn btn-primary">Read More</a>
                 </div>
             </div>

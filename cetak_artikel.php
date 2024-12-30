@@ -2,7 +2,6 @@
 include_once('config.php');
 require_once('fpdf/fpdf.php');
 
-// Ambil id artikel dari url
 $id = $_GET['id'] ?? '';
 
 // Ambil data artikel
@@ -14,24 +13,30 @@ if ($artikel) {
     // Buat objek fpdf
     $pdf = new FPDF();
 
-    // Tambahkan halaman
     $pdf->AddPage();
 
-    // Set font
     $pdf->SetFont('Arial', '', 12);
 
-    // Tambahkan judul
     $pdf->Cell(0, 10, $artikel['title'], 0, 1, 'C');
 
     // Tambahkan gambar
-    $pdf->Image($artikel['image_url'], $pdf->GetX(), $pdf->GetY(), 50);
-
-    // Tambahkan isi
+    $imageX = $pdf->GetX();
+    $imageY = $pdf->GetY();
+    $pdf->SetXY($imageX + 105, $imageY);
+    
+    if (filter_var($artikel['image_url'], FILTER_VALIDATE_URL)) {
+        $pdf->Image($artikel['image_url'], $imageX, $imageY, 185);
+    } else {
+        $pdf->Image('uploads/' . $artikel['image_url'], $imageX, $imageY, 50);
+    }
+    
+    $pdf->Ln(95); // Adjust this value according to image height
+    
+    //isi artikel
     $pdf->MultiCell(0, 5, $artikel['body'], 0, 'J');
 
-    // Tambahkan penulis dan tanggal
     $pdf->SetFont('Arial', 'I', 10);
-    $pdf->Cell(0, 10, 'Oleh ' . $artikel['author'] . ' pada ' . date('d-m-Y', strtotime($artikel['published_at'])), 0, 1, 'L');
+    $pdf->Cell(0, 10, 'Oleh ' . $artikel['author_id'] . ' pada ' . date('d-m-Y', strtotime($artikel['published_at'])), 0, 1, 'L');
 
     // Output pdf
     $pdf->Output('artikel-' . $id . '.pdf', 'I');

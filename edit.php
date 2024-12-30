@@ -23,13 +23,13 @@ if (isset($_GET['id'])) {
     exit();
 }
 
-$titleErr = $bodyErr = $categoryErr = $authorErr = $imageErr = "";
+$titleErr = $bodyErr = $categoryErr = $authorErr = $imageErr = '';
 
 // Syntax untuk mengupdate data pada table articles
 if (isset($_POST['update'])) {
     $title = $_POST['title'];
     $body = $_POST['body'];
-    $category_id = $_POST['category'];
+    $category_id = $_POST['category_id'];
     $author_id = $_POST['author'];
     $image_url = $_POST['image_url'] ? $_POST['image_url'] : $article['image_url'];
 
@@ -49,7 +49,7 @@ if (isset($_POST['update'])) {
         $imageErr = "Image URL tidak boleh kosong";
     }
     if (empty($titleErr) && empty($bodyErr) && empty($categoryErr) && empty($authorErr) && empty($imageErr)) {
-        $result = mysqli_query($con, "INSERT INTO articles (title, body, category_id, author_id, image_url) VALUES ('$title', '$body', '$category_id', '$author_id', '$image_url')");
+        $result = mysqli_query($con, "UPDATE articles SET title='$title', body='$body', category_id='$category_id', author_id='$author_id', image_url='$image_url' WHERE id='$id'");
         if ($result) {
             header("Location: index.php");
             exit();
@@ -121,17 +121,18 @@ if (isset($_POST['update'])) {
                 <span class="error"><?php echo $bodyErr; ?></span>
                 <p>
                     Kategori: 
-                    <select name="category" class="form-control">
-                        <option value="Nasional" <?php echo $article['category'] == 'Nasional' ? 'selected' : ''; ?>>Nasional</option>
-                        <option value="Internasional" <?php echo $article['category'] == 'Internasional' ? 'selected' : ''; ?>>Internasional</option>
-                        <option value="Ekonomi" <?php echo $article['category'] == 'Ekonomi' ? 'selected' : ''; ?>>Ekonomi</option>
-                        <option value="Teknologi" <?php echo $article['category'] == 'Teknologi' ? 'selected' : ''; ?>>Teknologi</option>
-                        <option value="Olahraga" <?php echo $article['category'] == 'Olahraga' ? 'selected' : ''; ?>>Olahraga</option>
-                        <option value="Hiburan" <?php echo $article['category'] == 'Hiburan' ? 'selected' : ''; ?>>Hiburan</option>
+                    <select name="category_id" class="form-control">
+                        <?php $selectedCategory = $article['category_id'] ?? ''; ?>
+                        <option value="1" <?php echo $selectedCategory == 1 ? 'selected' : ''; ?>>Nasional</option>
+                        <option value="2" <?php echo $selectedCategory == 2 ? 'selected' : ''; ?>>Internasional</option>
+                        <option value="3" <?php echo $selectedCategory == 3 ? 'selected' : ''; ?>>Ekonomi</option>
+                        <option value="4" <?php echo $selectedCategory == 4 ? 'selected' : ''; ?>>Teknologi</option>
+                        <option value="5" <?php echo $selectedCategory == 5 ? 'selected' : ''; ?>>Olahraga</option>
+                        <option value="6" <?php echo $selectedCategory == 6 ? 'selected' : ''; ?>>Hiburan</option>
                     </select>
                     <span class="error"><?php echo $categoryErr; ?></span>
                 </p>
-                <p>Author ID: <input type="number" name="author" value="<?php echo htmlspecialchars($article['author']); ?>" class="form-control"></p>
+                <p>Author ID: <input type="number" name="author" value="<?php echo htmlspecialchars($article['author_id']); ?>" class="form-control"></p>
                 <span class="error"><?php echo $authorErr; ?></span>
                 <p>Image URL: <input type="text" name="image_url" value="<?php echo htmlspecialchars($article['image_url']); ?>" class="form-control"></p>
                 <span class="error"><?php echo $imageErr; ?></span>
