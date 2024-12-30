@@ -9,14 +9,14 @@ if (!isset($_SESSION["login"])) {
 // Memanggil file koneksi.php
 include_once("config.php");
 
-// Syntax untuk mengambil semua data dari table categories
+// Untuk mengambil semua data dari table categories
 $result = mysqli_query($con, "select * from categories");
 $categories = [];
 while ($category = mysqli_fetch_assoc($result)) {
     $categories[$category['id']] = $category['name'];
 }
 
-// Syntax untuk mengambil semua data dari table articles
+// Untuk mengambil semua data dari table articles
 $result = mysqli_query($con, "select * from articles");
 $articles = [];
 while ($article = mysqli_fetch_assoc($result)) {

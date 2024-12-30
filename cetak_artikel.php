@@ -30,7 +30,7 @@ if ($artikel) {
         $pdf->Image('uploads/' . $artikel['image_url'], $imageX, $imageY, 50);
     }
     
-    $pdf->Ln(95); // Adjust this value according to image height
+    $pdf->Ln(95);
     
     //isi artikel
     $pdf->MultiCell(0, 5, $artikel['body'], 0, 'J');
